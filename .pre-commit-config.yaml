@@ -1,55 +1,103 @@
+---
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
 repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.4.0
-      hooks:
-          - id: trailing-whitespace
-          - id: debug-statements
-          - id: check-xml
-          - id: check-yaml
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: check-ast
+      - id: check-builtin-literals
+
+  - repo: https://github.com/PyCQA/bandit/
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        args:
+          - --quiet
+          - --severity-level=medium
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-      rev: v2.7.1
-      hooks:
-          - id: prettier
-            exclude: (?x)(
-                .*/tests/files/.*|
-                )
-            types: [yaml]
-  
+    rev: v2.7.1
+    hooks:
+      - id: prettier
+        types: [yaml]
+
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v2.4.0
+    hooks:
+      - id: add-trailing-comma
+        args:
+          - --py36-plus
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-use-type-annotations
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+
   - repo: https://github.com/asottile/pyupgrade
-      rev: v3.3.1
-      hooks:
-          - id: pyupgrade
-            args:
-                - --py310-plus
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py310-plus
 
-    - repo: https://github.com/pycqa/isort
-      rev: 5.12.0
-      hooks:
-          - id: isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
 
-    - repo: https://github.com/PyCQA/autoflake
-      rev: v2.0.1
-      hooks:
-          - id: autoflake
-            args:
-                - --in-place
-                - --expand-star-imports
-                - --remove-all-unused-imports
-                - --ignore-init-module-imports
-                - --remove-duplicate-keys
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.0.1
+    hooks:
+      - id: autoflake
+        args:
+          - --in-place
+          - --expand-star-imports
+          - --remove-all-unused-imports
+          - --ignore-init-module-imports
+          - --remove-duplicate-keys
 
-    - repo: https://github.com/psf/black
-      rev: 23.1.0
-      hooks:
-          - id: black
-          - id: black-jupyter
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+      - id: black-jupyter
 
-    - repo: https://github.com/pycqa/flake8
-      rev: 6.0.0
-      hooks:
-          - id: flake8
-            args:
-                - --config=.flake8
-            additional_dependencies:
-                - wemake-python-styleguide
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args:
+          - --config=.flake8
+        additional_dependencies:
+          - wemake-python-styleguide
+
+  - repo: local
+    hooks:
+      - id: python-no-assertionerror
+        name: check for AssertionError
+        description: "Check for usage of `AssertionError`"
+        entry: (?x)(
+          raise\sAssertionError|
+          except.*AssertionError
+          )
+        language: pygrep
+        types: [python]
