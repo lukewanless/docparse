@@ -3,12 +3,12 @@ from django.http import HttpResponse
 import openai
 import os
 import random
+from parser.utils import handle_uploaded_file
+from parser.forms import DocxForm
+from django.http import HttpResponse
+
 
 openai.api_key = os.environ.get("OPENAI_KEY", "")
-
-# Create your views here.
-def index(request):
-    return HttpResponse("Hello World. You're at the parser index.")
 
 # this is the home view for handling home page logic
 def home(request):
@@ -40,3 +40,15 @@ def home(request):
 # this is the view for handling errors
 def error_handler(request):
     return render(request, 'parser/404.html') 
+
+def upload(request):
+    if request.method == 'POST':
+        docx = DocxForm(request.POST, request.FILES)
+        # maybe add a validity checker here 
+        handle_uploaded_file(request.FILES['file']) 
+        return HttpResponse("File uploaded successfully") 
+        #return redirect(display_file) 
+    else:
+        docx = DocxForm()
+        return render(request, "parser/upload.html", {'form': docx})
+
