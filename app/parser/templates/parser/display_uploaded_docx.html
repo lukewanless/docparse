@@ -1,0 +1,29 @@
+{% extends 'parser/base.html' %}
+{% block title %} Content Editor {% endblock %}
+{% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-md-7 mt-4">
+        <div class="card">
+            <h1 class="card-header text-center">Parsed Document</h1>
+            <div class="card-body">
+                {% for list in text %} 
+                    <div class="card">
+                        <p> Document Element: {{ list.0 }}</p>
+                        <p> Text: {{ list.1 }} </p>
+                    <form action="." method="POST">
+                      <!-- this secures the form from malicious attacks during submission -->
+                      {% csrf_token %}
+                      <input class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" id="">
+                      <button class="btn btn-success fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="submit">
+                           REGENERATE
+                      </button>
+                    </form>
+                    </div>
+                {% endfor %}
+                <a href="{% url 'upload' %}" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

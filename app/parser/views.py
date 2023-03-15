@@ -3,9 +3,8 @@ from django.http import HttpResponse
 import openai
 import os
 import random
-from parser.utils import handle_uploaded_file
+from parser.utils import handle_uploaded_file, extract_text
 from parser.forms import DocxForm
-from django.http import HttpResponse
 
 
 openai.api_key = os.environ.get("OPENAI_KEY", "")
@@ -43,12 +42,22 @@ def error_handler(request):
 
 def upload(request):
     if request.method == 'POST':
-        docx = DocxForm(request.POST, request.FILES)
-        # maybe add a validity checker here 
-        handle_uploaded_file(request.FILES['file']) 
-        return HttpResponse("File uploaded successfully") 
-        #return redirect(display_file) 
+        if 'parse_document' in request.POST:
+            docx = DocxForm(request.POST, request.FILES)
+            # maybe add a validity checker here 
+            f_name = handle_uploaded_file(request.FILES['file'])
+            text = extract_text(f_name)
+            return render(request, 'parser/display_uploaded_docx.html', text) 
+            #return HttpResponse("File uploaded successfully") 
+        elif 'regenerate_btn' in request.POST:
+            index = request.POST.get('regenerate_btn')
+            msg = f"You are trying to generate using form {index}"
+            # use index to generate text, edit list and render uploaded file 
+            return HttpResponse(msg, content_type='text/plain')
+            
     else:
         docx = DocxForm()
         return render(request, "parser/upload.html", {'form': docx})
+
+
 
