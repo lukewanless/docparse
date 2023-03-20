@@ -10,6 +10,7 @@ import tempfile
 import openai
 import os
 import random
+import docx2python
 
 class XMLEdit:
     xml_tree: etree.Element
@@ -20,6 +21,10 @@ class XMLEdit:
         self.xml_string = self.get_word_xml(template_path)
         self.xml_tree = self.get_xml_tree()
         self.template_path = template_path
+
+    def fix_xml(self):
+        # Need to think about how the xml is being stored and saved/updated. 
+        pass
 
     def get_word_xml(self, path):
         zip = zipfile.ZipFile(path)
@@ -54,12 +59,6 @@ class XMLEdit:
         assert isinstance(completion, dict)
         text = random.choice(completion["choices"])["text"]
         return text
-
-    def classify_doc_element(self, elem: str):
-        prompt = f"Classify the following piece of text as one of the following and return it as a string [title, , heading, subheading, email, name, phone, location]: \' {elem } \'"
-        return self.generate_text(
-            prompt=prompt, max_tokens=len(elem.split()) + len(prompt.split())
-        )
 
     def _write_and_close_docx(self, output_filename):
         """Create a temp directory, expand the original docx zip.

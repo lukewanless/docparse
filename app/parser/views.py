@@ -10,11 +10,13 @@ from parser.forms import DocxForm
 openai.api_key = os.environ.get("OPENAI_KEY", "")
 
 # this is the home view for handling home page logic
-def home(request):
+def generate(request):
+    print("what funciton")
     try:
         # checking if the request method is POST
         if request.method == 'POST':
             # getting prompt data from the form
+            print("HELLO")
             prompt = request.POST.get('prompt')
             # making a request to the API 
             response = openai.Completion.create(model="text-davinci-003", prompt=prompt, max_tokens=1000)
@@ -26,11 +28,11 @@ def home(request):
                 'prompt': prompt
             }
             # this will render the results in the home.html template
-            return render(request, 'parser/home.html', context)
+            return render(request, 'parser/generate.html', context)
         # this runs if the request method is GET
         else:
             # this will render when there is no request POST or after every POST request
-            return render(request, 'parser/home.html')
+            return render(request, 'parser/generate.html')
     # the except statement will capture any error
     except:
         # this will redirect to the 404 page after any error is caught
