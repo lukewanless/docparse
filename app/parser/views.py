@@ -1,17 +1,21 @@
+from re import A
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import openai
 import os
 import random
-from parser.utils import handle_uploaded_file, extract_text
+from parser.utils import handle_uploaded_file, extract_text, save_document
 from parser.forms import DocxForm
+from .models import Document
+import parser.docx_edit as docx_edit
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 openai.api_key = os.environ.get("OPENAI_KEY", "")
 
 # this is the home view for handling home page logic
 def generate(request):
-    print("what funciton")
     try:
         # checking if the request method is POST
         if request.method == 'POST':
@@ -48,18 +52,41 @@ def upload(request):
             docx = DocxForm(request.POST, request.FILES)
             # maybe add a validity checker here 
             f_name = handle_uploaded_file(request.FILES['file'])
-            text = extract_text(f_name)
-            return render(request, 'parser/display_uploaded_docx.html', text) 
-            #return HttpResponse("File uploaded successfully") 
-        elif 'regenerate_btn' in request.POST:
-            index = request.POST.get('regenerate_btn')
-            msg = f"You are trying to generate using form {index}"
-            # use index to generate text, edit list and render uploaded file 
-            return HttpResponse(msg, content_type='text/plain')
-            
+            extract_text(f_name)
+            document_data = Document.objects.first()
+            text = document_data.get_element_classification()
+            text_dict = {'text' : text}
+            return render(request, 'parser/display_uploaded_docx.html', text_dict) 
     else:
         docx = DocxForm()
         return render(request, "parser/upload.html", {'form': docx})
 
 
+def call_openai_api(request):
+    if request.method == 'POST':
+        # getting prompt data from the form
+        index = int(request.POST.get('form_id'))
+        text = request.POST.get('text_input')
+        # get document data using the index 
+        document_data = Document.objects.first()
+        classifications = document_data.get_element_classification()
+        replacements = document_data.get_replacement_list()
+            
+        classification = classifications[index]
+        replacement = replacements[index]
 
+        # generate text using the classification
+        text_type = classification[0]
+             
+        prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
+        new_text = docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split()))
+        replacement = tuple([text, new_text])
+        classification[1] = new_text
+
+        # update and save new text in classifications and replacements 
+        classifications[index] = classification
+        replacements[index] = replacement
+        save_document(replacement_list=replacements, element_classification=classifications)
+
+        return JsonResponse({"new_text": new_text})
+    return JsonResponse({"error": "Invalid request method"}, status=400)
