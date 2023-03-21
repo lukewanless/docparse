@@ -20,7 +20,6 @@ def generate(request):
         # checking if the request method is POST
         if request.method == 'POST':
             # getting prompt data from the form
-            print("HELLO")
             prompt = request.POST.get('prompt')
             # making a request to the API 
             response = openai.Completion.create(model="text-davinci-003", prompt=prompt, max_tokens=1000)

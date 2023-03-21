@@ -1,19 +1,15 @@
 {% extends 'parser/base.html' %}
 {% block title %} Upload {% endblock %}
 {% block content %}
-<div class="row justify-content-center my-4">
-    <div class="col-md-7 mt-4">
-        <div class="card">
-            <h1 class="card-header text-center">Document Upload</h1>
-            <div class="card-body">
-                <form method="POST" class="post-form" enctype="multipart/form-data">  
-                  {% csrf_token %}  
-                  {{ form.as_p }}  
-                  <button type="submit" class="btn btn-success fw-bold" name="parse_document">Parse Document</button>  
-                </form>  
-            </div>
+<div class="card bg-white w-1/2 bordered">
+    <h1 class="card-title text-center">Document Upload</h1>
+        <div class="card-body items-center text-center">
+            <form method="POST" class="file-input file-input-bordered" enctype="multipart/form-data">  
+                {% csrf_token %}  
+                {{ form }}  
+                <button type="submit" class="btn btn-primary btn-outline" name="parse_document">Parse Document</button>  
+            </form>  
         </div>
     </div>
-  </div>
 </div>
 {% endblock %}
