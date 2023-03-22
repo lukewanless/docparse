@@ -13,7 +13,7 @@
                                 Expand element 
                             </button>
                         </div>
-                        <div id="collapse-{{ forloop.counter0 }}" class="collapse">
+                        <div id="collapse-{{ forloop.counter0 }}" class="collapse show">
                             <div class="card-body">
                                 <h5>
                                     Text element
@@ -30,9 +30,7 @@
                                 <form> 
                                     <!-- this secures the form from malicious attacks during submission -->
                                     {% csrf_token %}
-                                    <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">
-                                        {{ list.1 }}
-                                    </textarea>
+                                    <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">{{ list.1 }}</textarea>
                                     <button class="btn btn-secondary fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
                                         REGENERATE
                                     </button>

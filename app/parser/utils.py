@@ -14,7 +14,7 @@ def extract_text(f_name):
     classified_text = []
     for txt in text:
         cleaned_txt = clean_string(txt)
-        classified_text.append(list([docx_edit.classify_text(cleaned_txt).name,cleaned_txt]))
+        classified_text.append(list([docx_edit.classify_text(cleaned_txt).value,cleaned_txt]))
     replacement_list = [[] for _ in range(len(classified_text))]
     save_document(replacement_list=replacement_list, element_classification=classified_text)
     #return {'text': classified_text}

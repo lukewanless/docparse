@@ -55,8 +55,9 @@ def upload(request):
             extract_text(f_name)
             document_data = Document.objects.first()
             text = document_data.get_element_classification()
-            text_dict = {'text' : text}
-            return render(request, 'parser/display_uploaded_docx.html', text_dict) 
+            options = [option.value for option in docx_edit.DocElements]
+            input_dict = {'text' : text, 'options' : options}
+            return render(request, 'parser/display_uploaded_docx.html', input_dict, ) 
     else:
         docx = DocxForm()
         return render(request, "parser/upload.html", {'form': docx})
