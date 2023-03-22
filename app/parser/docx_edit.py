@@ -6,13 +6,13 @@ import re
 from enum import Enum, auto
 
 class DocElements(Enum):
-    EMAIL = auto()
-    PHONE_NUMBER = auto()
-    ADDRESS = auto()
-    FULL_NAME = auto()
-    PARAGRAPH = auto()
-    HEADING = auto()
-    UNKNOWN = auto()
+    EMAIL = "Email"
+    PHONE_NUMBER = "Phone Number"
+    ADDRESS = "Address"
+    FULL_NAME = "Full Name"
+    PARAGRAPH = "Paragraph"
+    HEADING = "Heading"
+    UNKNOWN = "Unknown"
 
 # Function to get a completion from davinci 
 def generate_text(prompt: str, max_tokens: int, ) -> str:

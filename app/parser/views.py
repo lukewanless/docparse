@@ -4,7 +4,7 @@ from django.http import HttpResponse
 import openai
 import os
 import random
-from parser.utils import handle_uploaded_file, extract_text, save_document
+from parser.utils import handle_uploaded_file, extract_text, save_document, clean_string
 from parser.forms import DocxForm
 from .models import Document
 import parser.docx_edit as docx_edit
@@ -79,8 +79,7 @@ def call_openai_api(request):
         text_type = classification[0]
              
         prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
-        new_text = docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split()))
-        new_text = new_text.lstrip()
+        new_text = clean_string(docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split())))
         replacement = tuple([text, new_text])
         classification[1] = new_text
 

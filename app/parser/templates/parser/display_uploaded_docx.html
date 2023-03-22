@@ -16,8 +16,16 @@
                         <div id="collapse-{{ forloop.counter0 }}" class="collapse">
                             <div class="card-body">
                                 <h5>
-                                    Element
-                                    <small class="text-muted"> {{ list.0 }}</small>
+                                    Text element
+                                </h5>
+                                    <!-- Add the <select> element here -->
+                                <select class="form-select form-select-sm mb-2" name="element-{{ forloop.counter0 }}">
+                                    {% for option in options %}
+                                        <option value="{{ option }}" {% if option == list.0 %}selected{% endif %}>{{ option }}</option>
+                                    {% endfor %}
+                                </select>
+                                <h5>
+                                    Text 
                                 </h5>
                                 <form> 
                                     <!-- this secures the form from malicious attacks during submission -->

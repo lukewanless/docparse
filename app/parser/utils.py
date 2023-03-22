@@ -13,10 +13,8 @@ def extract_text(f_name):
     text = docx_edit.get_document_text(path_in='parser/static/upload/'+f_name)
     classified_text = []
     for txt in text:
-        doc_elem = []
-        doc_elem.append(docx_edit.classify_text(txt).name)
-        doc_elem.append(txt)
-        classified_text.append(doc_elem)
+        cleaned_txt = clean_string(txt)
+        classified_text.append(list([docx_edit.classify_text(cleaned_txt).name,cleaned_txt]))
     replacement_list = [[] for _ in range(len(classified_text))]
     save_document(replacement_list=replacement_list, element_classification=classified_text)
     #return {'text': classified_text}
@@ -40,3 +38,18 @@ def save_document(replacement_list, element_classification):
             document.set_replacement_list(replacement_list)
             document.set_element_classification(element_classification)
             document.save()
+
+def clean_string(s):
+    # Remove leading white space
+    s = s.lstrip()
+
+    # Remove newline characters
+    s = s.replace("\n", "")
+
+    # Remove quotation marks only from the beginning and end of the string
+    if s.startswith('"') or s.startswith("'"):
+        s = s[1:]
+    if s.endswith('"') or s.endswith("'"):
+        s = s[:-1]
+
+    return s
