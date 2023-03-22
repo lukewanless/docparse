@@ -80,6 +80,7 @@ def call_openai_api(request):
              
         prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
         new_text = docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split()))
+        new_text = new_text.lstrip()
         replacement = tuple([text, new_text])
         classification[1] = new_text
 

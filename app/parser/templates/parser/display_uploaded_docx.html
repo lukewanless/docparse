@@ -4,36 +4,60 @@
 <div class="row justify-content-center my-4">
     <div class="col-md-7 mt-4">
         <div class="card">
-            <h1 class="card-header text-center">Parsed Document</h1>
+            <h1 class="card-header text-center display-5">Parsed Document</h1>
             <div class="card-body">
                 {% for list in text %} 
                     <div class="card m-3">
+                        <div class="card-header">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{ forloop.counter0 }}">
+                                Parsed Element {{ forloop.counter0 }}
+                            </button>
+                        </div>
+                        <div id="collapse-{{ forloop.counter0 }}" class="collapse">
                         <div class="card-body">
-                            <p class="card-text"> <b> Element: </b> {{ list.0 }} </p>
-                            <p class="card-text"> <b> Text: </b> {{ list.1 }} </p>
+                            <h5>
+                                Element
+                                <small class="text-muted"> {{ list.0 }}</small>
+                            </h5>
                             <form> 
                                 <!-- this secures the form from malicious attacks during submission -->
                                 {% csrf_token %}
-                                <input class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">
-                                <button class="btn btn-success fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
+                                <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">
+                                    {{ list.1 }}
+                                </textarea>
+                                <button class="btn btn-secondary fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
                                     REGENERATE
                                 </button>
                             </form>
                         </div>
                     </div>
                 {% endfor %}
-                <a href="{% url 'upload' %}" class="btn btn-secondary">Back</a>
+                <a href="{% url 'upload' %}" class="btn btn-outline-secondary">Back</a>
+                <button id="saveButton" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
   </div>
 </div>
 <script>
+
+  function saveTextFromTextareas() {
+    const textareas = document.querySelectorAll("textarea[name='prompt']");
+    const texts = [];
+
+    textareas.forEach((textarea) => {
+      texts.push(textarea.value);
+    });
+
+    // Call your function with the texts array
+    yourFunction(texts);
+  }
+
   $(document).ready(function() {
     $("button[name='regenerate_btn']").on("click", function(event) {
       event.preventDefault();
       const formId = $(this).val();
-      const textInput = $(`input[data-form-id="${formId}"]`).val();
+      const textInput = $(`textarea[data-form-id="${formId}"]`).val();
       const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
       $.ajax({
         url: "api/call_openai/",
@@ -44,7 +68,7 @@
           csrfmiddlewaretoken: csrfToken,
         },
         success: function(response) {
-          $(`input[data-form-id="${formId}"]`).val(response.new_text);
+          $(`textarea[data-form-id="${formId}"]`).val(response.new_text);
         },
         error: function(xhr, textStatus, errorThrown) {
           console.error("Error:", errorThrown);
