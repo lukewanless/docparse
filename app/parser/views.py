@@ -96,3 +96,16 @@ def call_openai_api(request):
 
         return JsonResponse({"new_text": new_text})
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+def completed(request):
+    return render(request, 'parser/completed.html')
+
+def save(request):
+    if request.method == 'POST':
+        text_list = request.POST.getlist('texts[]')
+        # need to get the original values in the document then zip it with 
+        # the new values and save this in the database 
+        print(text_list)
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'error'})

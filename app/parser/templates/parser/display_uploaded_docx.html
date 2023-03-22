@@ -85,5 +85,33 @@
       });
     });
   });
+
+$("#saveButton").on("click", function(event) {
+    event.preventDefault();
+    const textareas = document.querySelectorAll("textarea[name='prompt']");
+    const texts = [];
+
+    textareas.forEach((textarea) => {
+        texts.push(textarea.value);
+    });
+
+    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    $.ajax({
+        url: "{% url 'save' %}",
+        method: "POST",
+        data: {
+            'texts[]': texts,
+            csrfmiddlewaretoken: csrfToken,
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                window.location.href = "{% url 'completed' %}";
+            }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error("Error:", errorThrown);
+        },
+    });
+});
 </script>
 {% endblock %}
