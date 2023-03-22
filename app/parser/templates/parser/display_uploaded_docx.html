@@ -65,6 +65,7 @@
       event.preventDefault();
       const formId = $(this).val();
       const textInput = $(`textarea[data-form-id="${formId}"]`).val();
+      const selectedOption = $(`select[name="element-${formId}"]`).val();
       const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
       $.ajax({
         url: "api/call_openai/",
@@ -72,6 +73,7 @@
         data: {
           form_id: formId,
           text_input: textInput,
+          selected_option: selectedOption,
           csrfmiddlewaretoken: csrfToken,
         },
         success: function(response) {

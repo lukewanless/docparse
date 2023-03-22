@@ -68,6 +68,7 @@ def call_openai_api(request):
         # getting prompt data from the form
         index = int(request.POST.get('form_id'))
         text = request.POST.get('text_input')
+        text_type = request.POST.get('selected_option')
         # get document data using the index 
         document_data = Document.objects.first()
         classifications = document_data.get_element_classification()
@@ -77,9 +78,13 @@ def call_openai_api(request):
         replacement = replacements[index]
 
         # generate text using the classification
-        text_type = classification[0]
-             
-        prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
+        text_type_old = classification[0]
+
+        if text_type_old == text_type:
+            prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
+        else:
+            prompt = f"Generate a {text_type}. Return only the {text_type} as a string"
+
         new_text = clean_string(docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split())))
         replacement = tuple([text, new_text])
         classification[1] = new_text
