@@ -5,6 +5,7 @@ import json
 
 # Create your models here.
 class Document(models.Model):
+    f_name = models.TextField(null=True)
     replacement_list = models.TextField(blank=True, null=True)
     element_classification = models.TextField()
 

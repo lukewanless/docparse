@@ -78,7 +78,7 @@ def generate_replacements(path_in):
 # open python2docx xml, iterate through all text runs, classify and regenerate,
 # then replace text and save to output path 
 def replace_text(path_in, path_out, replacements=None):
-    reader = docx2python(template_path).docx_reader
+    reader = docx2python(path_in).docx_reader
     for file in reader.content_files():
         root = file.root_element
         # if no replacements then we simply go 

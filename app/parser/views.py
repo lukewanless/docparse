@@ -67,37 +67,39 @@ def call_openai_api(request):
     if request.method == 'POST':
         # getting prompt data from the form
         index = int(request.POST.get('form_id'))
-        text = request.POST.get('text_input')
-        text_type = request.POST.get('selected_option')
+        request_text = request.POST.get('text_input')
+        request_text_type = request.POST.get('selected_option')
+        
         # get document data using the index 
         document_data = Document.objects.first()
         classifications = document_data.get_element_classification()
         replacements = document_data.get_replacement_list()
             
-        classification = classifications[index]
-        replacement = replacements[index]
 
         # generate text using the classification
-        text_type_old = classification[0]
+        previous_text_type = classifications[index][1]
 
-        if text_type_old == text_type:
-            prompt = f"The follwing text is a {text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {text}"
+        if previous_text_type == request_text_type:
+            prompt = f"The follwing text is a {request_text_type} from a document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: {request_text}"
         else:
-            prompt = f"Generate a {text_type}. Return only the {text_type} as a string"
+            prompt = f"Generate a {request_text_type}. Return only the {request_text_type} as a string"
 
         new_text = clean_string(docx_edit.generate_text(prompt=prompt, max_tokens=2*len(prompt.split())))
-        replacement = tuple([text, new_text])
-        classification[1] = new_text
+        replacements[index][1] = new_text
+        classifications[index][1] = request_text_type
 
-        # update and save new text in classifications and replacements 
-        classifications[index] = classification
-        replacements[index] = replacement
         save_document(replacement_list=replacements, element_classification=classifications)
 
         return JsonResponse({"new_text": new_text})
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def completed(request):
+    # load in the replacements list
+    doc = Document.objects.first()
+    replacements = doc.get_replacement_list()
+    docx_edit.replace_text(path_in='parser/static/upload/'+doc.f_name, path_out='parser/static/upload/replaced.docx', replacements=replacements)
+    # call the replacements function and return a new file in download link 
+
     return render(request, 'parser/completed.html')
 
 def save(request):
