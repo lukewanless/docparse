@@ -1,10 +1,21 @@
 {% extends 'parser/base.html' %}
 
-{% block title %}Completed{% endblock %}
+{% block title %} Completed {% endblock %}
 
 {% block content %}
-  <div class="container text-center">
-    <h1 class="mt-5">Completed</h1>
-  </div>
-  <a href="{% url 'completed' %}" class="btn btn-primary" download>Download Docx</a>
+<div class="row justify-content-center my-4">
+    <div class="col-md-7 mt-4">
+        <div class="card">
+            <h1 class="card-header text-center display-5">Completed</h1>
+            <div class="card-body">
+                <div class="text-center">
+                    <p>Your document has been successfully processed.</p>
+                    <a href="{% url 'download_docx' %}" class="btn btn-outline-primary fw-bold mb-3" download>Download Docx</a>
+                    <br>
+                    <a href="{% url 'upload' %}" class="btn btn-outline-secondary fw-bold">Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -14,34 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 openai.api_key = os.environ.get("OPENAI_KEY", "")
 
-# this is the home view for handling home page logic
-def generate(request):
-    try:
-        # checking if the request method is POST
-        if request.method == 'POST':
-            # getting prompt data from the form
-            print("HELLO")
-            prompt = request.POST.get('prompt')
-            # making a request to the API 
-            response = openai.Completion.create(model="text-davinci-003", prompt=prompt, max_tokens=1000)
-            # formatting the response input
-            text = random.choice(response["choices"])["text"]
-            # bundling everything in the context
-            context = {
-                'formatted_response': text,
-                'prompt': prompt
-            }
-            # this will render the results in the home.html template
-            return render(request, 'parser/generate.html', context)
-        # this runs if the request method is GET
-        else:
-            # this will render when there is no request POST or after every POST request
-            return render(request, 'parser/generate.html')
-    # the except statement will capture any error
-    except:
-        # this will redirect to the 404 page after any error is caught
-        return redirect('error_handler')
- 
 # this is the view for handling errors
 def error_handler(request):
     return render(request, 'parser/404.html') 
@@ -93,21 +65,51 @@ def call_openai_api(request):
         return JsonResponse({"new_text": new_text})
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
-def completed(request):
-    # load in the replacements list
-    doc = Document.objects.first()
-    replacements = doc.get_replacement_list()
-    docx_edit.replace_text(path_in='parser/static/upload/'+doc.f_name, path_out='parser/static/upload/replaced.docx', replacements=replacements)
-    # call the replacements function and return a new file in download link 
 
-    return render(request, 'parser/completed.html')
+def completed(request):
+    # serve a simple link to the saved file in the static directory 
+    return render(request, "parser/completed.html")
+
+
+def download_docx(request):
+    doc = Document.objects.first()
+    file_path = 'parser/static/upload/replaced.docx'
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        response['Content-Disposition'] = f'attachment; filename={os.path.basename(file_path)}'
+        return response 
+
 
 def save(request):
+    # replace DB replacement list with what was last in text secitons 
     if request.method == 'POST':
         text_list = request.POST.getlist('texts[]')
-        # need to get the original values in the document then zip it with 
-        # the new values and save this in the database 
-        print(text_list)
+
+        document_data = Document.objects.first()
+        replacements = document_data.get_replacement_list()
+        classifications = document_data.get_element_classification()
+
+        replacements = list(zip([replacement[0] for replacement in replacements], text_list))
+        save_document(replacement_list=replacements, element_classification=classifications)
+
+        # now run the replacement of the actual document 
+        doc = Document.objects.first()
+        replacements = doc.get_replacement_list()
+        docx_edit.replace_text(path_in='parser/static/upload/'+doc.f_name, path_out='parser/static/upload/replaced.docx', replacements=replacements)
+
+
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error'})
+
+def display_uploaded_docx(request):
+    # this should display the last state of the document editor 
+    # this includes text and the classification 
+    # make sure the classification is saved properly
+    document_data = Document.objects.first()
+    text = document_data.get_element_classification()
+    options = [option.value for option in docx_edit.DocElements]
+    input_dict = {'text' : text, 'options' : options}
+    return render(request, 'parser/display_uploaded_docx.html', input_dict, ) 
+
+
