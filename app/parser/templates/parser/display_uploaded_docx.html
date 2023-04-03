@@ -6,48 +6,49 @@
         <div class="card">
             <h1 class="card-header text-center display-5">Parsed Document</h1>
             <div class="card-body">
-                {% for list in text %} 
-                    <div class="card m-3">
-                        <div class="card-header">
-                            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ forloop.counter0 }}" aria-expanded="true" aria-controls="collapse-{{ forloop.counter0}}">
-                                Expand element 
+                <div class="accordion" id="accordionExample">
+                    {% for list in text %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ forloop.counter0 }}">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ forloop.counter0 }}" aria-expanded="true" aria-controls="collapse-{{ forloop.counter0 }}">
+                                Expand element
                             </button>
-                        </div>
-                        <div id="collapse-{{ forloop.counter0 }}" class="collapse show">
-                            <div class="card-body">
+                        </h2>
+                        <div id="collapse-{{ forloop.counter0 }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ forloop.counter0 }}" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
                                 <h5>
                                     Text element
                                 </h5>
-                                    <!-- Add the <select> element here -->
+                                <!-- Add the <select> element here -->
                                 <select class="form-select form-select-sm mb-2" name="element-{{ forloop.counter0 }}">
                                     {% for option in options %}
                                         <option value="{{ option }}" {% if option == list.0 %}selected{% endif %}>{{ option }}</option>
                                     {% endfor %}
                                 </select>
                                 <h5>
-                                    Text 
+                                    Text
                                 </h5>
-                                <form> 
+                                <form>
                                     <!-- this secures the form from malicious attacks during submission -->
                                     {% csrf_token %}
                                     <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">{{ list.1 }}</textarea>
-                                    <button class="btn btn-secondary fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
+                                    <button class="btn btn-outline-success fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
                                         REGENERATE
                                     </button>
                                 </form>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                <br>
                 <a href="{% url 'upload' %}" class="btn btn-outline-secondary">Back</a>
                 <button id="saveButton" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
-  </div>
 </div>
 <script>
-
   function saveTextFromTextareas() {
     const textareas = document.querySelectorAll("textarea[name='prompt']");
     const texts = [];
