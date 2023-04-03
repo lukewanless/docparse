@@ -11,28 +11,24 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading-{{ forloop.counter0 }}">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ forloop.counter0 }}" aria-expanded="true" aria-controls="collapse-{{ forloop.counter0 }}">
-                                Expand element
+                                Hide section
                             </button>
                         </h2>
-                        <div id="collapse-{{ forloop.counter0 }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ forloop.counter0 }}" data-bs-parent="#accordionExample">
+                        <div id="collapse-{{ forloop.counter0 }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ forloop.counter0 }}"> 
                             <div class="accordion-body">
-                                <h5>
-                                    Text element
-                                </h5>
+                                    Text type
                                 <!-- Add the <select> element here -->
                                 <select class="form-select form-select-sm mb-2" name="element-{{ forloop.counter0 }}">
                                     {% for option in options %}
                                         <option value="{{ option }}" {% if option == list.0 %}selected{% endif %}>{{ option }}</option>
                                     {% endfor %}
                                 </select>
-                                <h5>
                                     Text
-                                </h5>
                                 <form>
                                     <!-- this secures the form from malicious attacks during submission -->
                                     {% csrf_token %}
                                     <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">{{ list.1 }}</textarea>
-                                    <button class="btn btn-outline-success fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
+                                    <button class="btn btn-outline-primary fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
                                         REGENERATE
                                     </button>
                                 </form>
@@ -119,6 +115,18 @@ $("#saveButton").on("click", function(event) {
         error: function(xhr, textStatus, errorThrown) {
             console.error("Error:", errorThrown);
         },
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const accordionExample = document.getElementById("accordionExample");
+
+    accordionExample.addEventListener("show.bs.collapse", function(event) {
+        event.target.previousElementSibling.querySelector(".accordion-button").textContent = "Hide section";
+    });
+
+    accordionExample.addEventListener("hide.bs.collapse", function(event) {
+        event.target.previousElementSibling.querySelector(".accordion-button").textContent = "Show section";
     });
 });
 </script>
