@@ -89,10 +89,16 @@
 $("#saveButton").on("click", function(event) {
     event.preventDefault();
     const textareas = document.querySelectorAll("textarea[name='prompt']");
+    const selects = document.querySelectorAll("select[name^='element-']");
     const texts = [];
+    const selectedOptions = [];
 
     textareas.forEach((textarea) => {
         texts.push(textarea.value);
+    });
+
+    selects.forEach((select) => {
+        selectedOptions.push(select.value);
     });
 
     const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
@@ -101,6 +107,7 @@ $("#saveButton").on("click", function(event) {
         method: "POST",
         data: {
             'texts[]': texts,
+            'selectedOptions[]': selectedOptions,
             csrfmiddlewaretoken: csrfToken,
         },
         success: function(response) {

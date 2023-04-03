@@ -84,10 +84,11 @@ def save(request):
     # replace DB replacement list with what was last in text secitons 
     if request.method == 'POST':
         text_list = request.POST.getlist('texts[]')
+        option_list = request.POST.getlist('selectedOptions[]')
 
         document_data = Document.objects.first()
         replacements = document_data.get_replacement_list()
-        classifications = document_data.get_element_classification()
+        classifications = list(zip(option_list, text_list))
 
         replacements = list(zip([replacement[0] for replacement in replacements], text_list))
         save_document(replacement_list=replacements, element_classification=classifications)
