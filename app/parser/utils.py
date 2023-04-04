@@ -2,6 +2,9 @@ from parser import docx_edit
 from django.db import transaction
 from .models import Document
 
+# this should take all of the images in the file and save them in a new directory 
+# linked to name of file 
+# worry about resource cleanup later 
 def handle_uploaded_file(f):  
     with open('parser/static/upload/'+f.name, 'wb+') as destination:  
         for chunk in f.chunks():  
