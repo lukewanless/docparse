@@ -97,7 +97,7 @@ def save(request):
         doc = Document.objects.first()
         replacements = doc.get_replacement_list()
         docx_edit.replace_images(path_in='parser/static/upload/'+doc.f_name, path_out='parser/static/upload/replaced2.docx')
-        docx_edit.replace_text(path_in='parser/static/upload/replaced2.docx', path_out='parser/static/upload/replaced.docx', replacements=replacements)
+        docx_edit.replace_text(path_in='parser/static/upload/replaced2', path_out='parser/static/upload/replaced.docx', replacements=replacements)
 
 
         return JsonResponse({'status': 'success'})
