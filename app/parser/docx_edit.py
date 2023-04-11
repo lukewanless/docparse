@@ -4,10 +4,6 @@ import random
 from docx2python import docx2python, utilities
 import re
 from enum import Enum 
-from typing import Dict
-import io 
-from PIL import Image
-import shutil
 
 class DocElements(Enum):
     EMAIL = "Email"
@@ -64,21 +60,7 @@ def classify_and_regenerate(text):
 
 # save the images as well in a directory specific to each file 
 def get_document_text(path_in):
-    # create image directory
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    images_dir = os.path.join(current_dir, "static", "images")
-    images_path = os.path.join(images_dir, os.path.splitext(os.path.basename(path_in))[0])
-
-    #delete all subdirectories to clean up after previous generation 
-    for item in os.listdir(images_dir):
-        if os.path.isdir(os.path.join(images_dir, item)):
-            shutil.rmtree(os.path.join(images_dir, item))
-
-    # make new images directory 
-    os.mkdir(images_path)
-
-    # save images and return all text in file
-    with docx2python(path_in, images_path) as doc:
+    with docx2python(path_in) as doc:
         doc_txt = doc.text.split('\n')
         return [txt for txt in doc_txt if txt != '']
 
@@ -110,44 +92,3 @@ def replace_text(path_in, path_out, replacements=None):
     reader.save(path_out)
     reader.close()
 
-def get_image_names(path_in):
-    doc = docx2python(path_in)
-    return [name for name in doc.images.keys()]
-
-def replace_images(path_in,path_out) -> None:
-        """
-        Replace images in the docx file with new images of the same size.
-        :param replacements: A dictionary with the old image names as keys and new image paths as values
-        """
-        reader = docx2python(path_in).docx_reader
-        # Pull existing images from the docx file
-        existing_images = reader.pull_image_files()
-        old_image_names = get_image_names(path_in)
-        images_directory = 'parser/static/images/'+os.path.splitext(os.path.basename(path_in))[0]+'/'
- 
-        replacement_paths =[os.path.join(images_directory, f) for f in os.listdir(images_directory) if os.path.isfile(os.path.join(images_directory, f)) and 'replace' in f]
-
-        # Iterate through the replacements
-        replacements = dict(zip(old_image_names, replacement_paths))
-        for old_image_name, new_image_path in replacements.items():
-            # Check if the old image exists in the docx file
-            if old_image_name in existing_images:
-                # Load the old image and the new image using PIL
-                old_image = Image.open(io.BytesIO(existing_images[old_image_name]))
-                new_image = Image.open(new_image_path)
-
-                # Check if the images have the same size
-                #if old_image.size == new_image.size:
-                    # Replace the old image with the new image in the docx file
-                with open(new_image_path, "rb") as new_image_file:
-                    new_image_data = new_image_file.read()
-                for image in reader.files_of_type("image"):
-                    if os.path.basename(image.Target) == old_image_name:
-                        image.root_element.clear()
-                        image.root_element.write(new_image_data)
-                #else:
-                    #print(f"Error: The new image {new_image_path} has a different size than the old image {old_image_name}.")
-            else:
-                print(f"Error: The old image {old_image_name} was not found in the docx file.")
-        reader.save(path_out)
-        reader.close()
