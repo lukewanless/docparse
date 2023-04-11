@@ -57,31 +57,35 @@
     yourFunction(texts);
   }
 
-  $(document).ready(function() {
-    $("button[name='regenerate_btn']").on("click", function(event) {
-      event.preventDefault();
-      const formId = $(this).val();
-      const textInput = $(`textarea[data-form-id="${formId}"]`).val();
-      const selectedOption = $(`select[name="element-${formId}"]`).val();
-      const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
-      $.ajax({
-        url: "api/call_openai/",
-        method: "POST",
-        data: {
-          form_id: formId,
-          text_input: textInput,
-          selected_option: selectedOption,
-          csrfmiddlewaretoken: csrfToken,
-        },
-        success: function(response) {
-          $(`textarea[data-form-id="${formId}"]`).val(response.new_text);
-        },
-        error: function(xhr, textStatus, errorThrown) {
-          console.error("Error:", errorThrown);
-        },
-      });
-    });
-  });
+const regenerateSocket = new WebSocket(
+  "ws://" + window.location.host + "/ws/regenerate/"
+);
+
+regenerateSocket.onmessage = function (event) {
+  const data = JSON.parse(event.data);
+  const formId = data.form_id;
+  $(`textarea[data-form-id="${formId}"]`).val(data.new_text);
+};
+
+regenerateSocket.onclose = function (event) {
+  console.error("WebSocket closed unexpectedly");
+};
+
+$("button[name='regenerate_btn']").on("click", function (event) {
+  event.preventDefault();
+  const formId = $(this).val();
+  const textInput = $(`textarea[data-form-id="${formId}"]`).val();
+  const selectedOption = $(`select[name="element-${formId}"]`).val();
+
+  regenerateSocket.send(
+    JSON.stringify({
+      form_id: formId,
+      text_input: textInput,
+      selected_option: selectedOption,
+    })
+  );
+});
+
 
 $("#saveButton").on("click", function(event) {
     event.preventDefault();

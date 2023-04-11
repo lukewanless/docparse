@@ -15,14 +15,15 @@ class DocElements(Enum):
     UNKNOWN = "Unknown"
 
 # Function to get a completion from davinci 
-def generate_text(prompt: str, max_tokens: int, ) -> str:
+def generate_text(prompt: str, max_tokens: int, ):
         openai.api_key = os.environ.get("OPENAI_KEY", "")
         completion = openai.Completion.create(
-            engine="text-davinci-003", prompt=prompt, max_tokens=max_tokens, echo=False
+            engine="text-davinci-003", prompt=prompt, max_tokens=max_tokens, echo=False, stream=True
         )
-        assert isinstance(completion, dict)
-        text = random.choice(completion["choices"])["text"]
-        return text
+        return completion 
+        #assert isinstance(completion, dict)
+        #text = random.choice(completion["choices"])["text"]
+        #return text
 
 
 # Function to classify a single text element  

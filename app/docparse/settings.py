@@ -31,14 +31,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'parser.apps.ParserConfig'
+    'parser.apps.ParserConfig', 
 ]
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,7 +76,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'docparse.wsgi.application'
+#WSGI_APPLICATION = 'docparse.wsgi.application'
+
+ASGI_APPLICATION = 'docparse.asgi.application'
 
 
 # Database
