@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from .models import Document
 from .utils import clean_string, save_document, docx_edit 
 from .docx_edit import generate_text 
-import time
 
 
 class RegenerateConsumer(AsyncWebsocketConsumer):
@@ -42,13 +41,13 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         new_text = ""
         for new_text_chunk in generate_text(prompt=prompt, max_tokens=1000):
             new_text += new_text_chunk["choices"][0]["text"]
-            print(new_text)
+            new_text = clean_string(new_text)
             response = {
                 'form_id': text_data_json['form_id'],
                 'new_text': new_text,
             }
             await self.send(text_data=json.dumps(response))
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
         # Save the updated text to the database after receiving all text chunks
         replacements[index][1] = new_text
         classifications[index][1] = request_text_type

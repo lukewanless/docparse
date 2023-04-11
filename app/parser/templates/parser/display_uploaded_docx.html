@@ -65,6 +65,7 @@ socket.onmessage = function (event) {
   const newText = data.new_text;
   const textarea = document.querySelector(`textarea[data-form-id="${formId}"]`);
   textarea.value = newText;
+  textarea.scrollTop = textarea.scrollHeight;
 };
 
 socket.onclose = function (event) {
