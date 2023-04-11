@@ -57,35 +57,38 @@
     yourFunction(texts);
   }
 
-const regenerateSocket = new WebSocket(
-  "ws://" + window.location.host + "/ws/regenerate/"
-);
+const socket = new WebSocket('ws://' + window.location.host + '/ws/regenerate/');
 
-regenerateSocket.onmessage = function (event) {
+socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
   const formId = data.form_id;
-  $(`textarea[data-form-id="${formId}"]`).val(data.new_text);
+  const newText = data.new_text;
+  const textarea = document.querySelector(`textarea[data-form-id="${formId}"]`);
+  textarea.value = newText;
 };
 
-regenerateSocket.onclose = function (event) {
-  console.error("WebSocket closed unexpectedly");
+socket.onclose = function (event) {
+  console.error('WebSocket closed unexpectedly');
 };
 
-$("button[name='regenerate_btn']").on("click", function (event) {
-  event.preventDefault();
-  const formId = $(this).val();
-  const textInput = $(`textarea[data-form-id="${formId}"]`).val();
-  const selectedOption = $(`select[name="element-${formId}"]`).val();
+$(document).ready(function () {
+  $('button[name="regenerate_btn"]').on('click', function (event) {
+    event.preventDefault();
+    const formId = $(this).val();
+    const textInput = $(`textarea[data-form-id="${formId}"]`).val();
+    const selectedOption = $(`select[name="element-${formId}"]`).val();
+    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
 
-  regenerateSocket.send(
-    JSON.stringify({
+    const data = {
       form_id: formId,
       text_input: textInput,
       selected_option: selectedOption,
-    })
-  );
-});
+      csrfmiddlewaretoken: csrfToken,
+    };
 
+    socket.send(JSON.stringify(data));
+  });
+});
 
 $("#saveButton").on("click", function(event) {
     event.preventDefault();
