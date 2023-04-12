@@ -32,13 +32,13 @@
                                     <!-- this secures the form from malicious attacks during submission -->
                                     {% csrf_token %}
                                     <textarea rows="5" cols="10" class="form-control mb-2" required type="text" autofocus="autofocus" name="prompt" value="{{ list.1 }}" data-form-id="{{ forloop.counter0 }}" id="">{{ list.1 }}</textarea>
-                                    <button class="btn btn-outline-primary fw-bold" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
+                                    <div class="progress mt-2" id="progress-bar-{{ forloop.counter0 }}" style="display: none;">
+                                        <div class="progress-bar" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <button class="btn btn-outline-primary fw-bold mt-2" name="regenerate_btn" value="{{ forloop.counter0 }}" type="button">
                                         REGENERATE
                                     </button>
                                 </form>
-                                <div class="progress mt-2" id="progress-bar-{{ forloop.counter0 }}" style="display: none;">
-                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -77,18 +77,21 @@ socket.onmessage = function (event) {
   textarea.scrollTop = textarea.scrollHeight;
   toggleDisabledState(formId, disable);
   
-  console.log(progress);
+  // Update the progress bar with the received progress value
+  const progressBarContainer = document.getElementById(`progress-bar-${formId}`);
+  const progressBar = progressBarContainer.querySelector('.progress-bar');
 
   // Update the progress bar with the received progress value
-  const progressBar = document.querySelector(`#progress-bar-${formId} .progress-bar`);
   progressBar.style.width = progress + '%';
   progressBar.setAttribute('aria-valuenow', progress);
 
   if (progress === 100) {
-    document.getElementById(`progress-bar-${formId}`).style.display = 'none';
+    progressBarContainer.style = 'display: none';
   } else {
-    document.getElementById(`progress-bar-${formId}`).style.display = 'block';
-  }
+    progressBarContainer.style = 'display: visible';
+  } 
+  console.log(progressBarContainer);
+
 };
 
 socket.onclose = function (event) {

@@ -50,8 +50,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         for new_text_chunk in generate_text(prompt=prompt, max_tokens=1000):
             new_text += new_text_chunk["choices"][0]["text"]
             new_text = clean_string(new_text)
-            progress = int(len(new_text.split())/750 * 100)*3
-            print(print(progress))
+            progress = min(99,int(len(new_text.split())/750 * 100)*3)
             response = {
                 'form_id': text_data_json['form_id'],
                 'new_text': new_text,
@@ -59,7 +58,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
                 'progress': progress,
             }
             await self.send(text_data=json.dumps(response))
-            await asyncio.sleep(0.9) 
+            await asyncio.sleep(0.1) 
 
         # Save the updated text to the database after receiving all text chunks
         replacements[index][1] = new_text
