@@ -35,8 +35,6 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         # Generate text using the classification
         previous_text_type = classifications[index][0]
 
-        print(previous_text_type, request_text_type)
-        
         context_string = f"You are an LLM that replaces text from a real document with fake text that looks similar and realistic in order to obscure sensitive information. You generate document section by section. Here is a list of tuples containing the type of text in each section followed by the text as you go down the document. The document topic is {request_topic}. The generated text should be consistent with what has been generated so far: {request_context}."
 
         if previous_text_type == request_text_type:
@@ -44,10 +42,11 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         else:
             prompt = f"{context_string} Generate a {request_text_type}. Return only the {request_text_type} as a string."
 
-        print(prompt)
-
         new_text = ""
-        for new_text_chunk in generate_text(prompt=prompt, max_tokens=1000):
+
+        # calculate max tokens using the previous text 
+        max_tokens = max(6, int(1.33*len(request_text.split())))
+        for new_text_chunk in generate_text(prompt=prompt, max_tokens=max_tokens):
             new_text += new_text_chunk["choices"][0]["text"]
             new_text = clean_string(new_text)
             progress = min(99,int(len(new_text.split())/750 * 100)*3)
