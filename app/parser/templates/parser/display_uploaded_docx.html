@@ -63,9 +63,11 @@ socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
   const formId = data.form_id;
   const newText = data.new_text;
+  const disable = data.disable;
   const textarea = document.querySelector(`textarea[data-form-id="${formId}"]`);
   textarea.value = newText;
   textarea.scrollTop = textarea.scrollHeight;
+  toggleDisabledState(formId, disable);
 };
 
 socket.onclose = function (event) {
@@ -79,12 +81,15 @@ $(document).ready(function () {
     const textInput = $(`textarea[data-form-id="${formId}"]`).val();
     const selectedOption = $(`select[name="element-${formId}"]`).val();
     const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    const context = collectContext(formId);
+    console.log(context);
 
     const data = {
       form_id: formId,
       text_input: textInput,
       selected_option: selectedOption,
       csrfmiddlewaretoken: csrfToken,
+      context: context, 
     };
 
     socket.send(JSON.stringify(data));
@@ -137,5 +142,25 @@ document.addEventListener("DOMContentLoaded", function() {
         event.target.previousElementSibling.querySelector(".accordion-button").textContent = "Show section";
     });
 });
+
+function collectContext(formId) {
+  const context = [];
+
+  for (let i = 0; i < formId; i++) {
+    const textInput = $(`textarea[data-form-id="${i}"]`).val();
+    const selectedOption = $(`select[name="element-${i}"]`).val();
+    context.push([selectedOption, textInput]);
+  }
+
+  return context;
+}
+
+function toggleDisabledState(formId, disabled) {
+  const textarea = document.querySelector(`textarea[data-form-id="${formId}"]`);
+  const regenerateBtn = document.querySelector(`button[value="${formId}"]`);
+
+  textarea.disabled = disabled;
+  regenerateBtn.disabled = disabled;
+}
 </script>
 {% endblock %}
