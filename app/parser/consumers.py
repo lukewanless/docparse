@@ -23,6 +23,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         request_text = text_data_json['text_input']
         request_text_type = text_data_json['selected_option']
         request_context = text_data_json['context']
+        request_topic = text_data_json['topic']
 
         # Get document data using the index
         document_data = await database_sync_to_async(Document.objects.first)()
@@ -36,7 +37,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
 
         print(previous_text_type, request_text_type)
         
-        context_string = f"You are an LLM that replaces text from a real document with fake text that looks similar and realistic in order to obscure sensitive information. You generate document section by section. Here is a dictionary containing what has been previously generated and what type of information the text is. It should be consistent with this fake information. {request_context}."
+        context_string = f"You are an LLM that replaces text from a real document with fake text that looks similar and realistic in order to obscure sensitive information. You generate document section by section. Here is a list of tuples containing the type of text in each section followed by the text as you go down the document. The document topic is {request_topic}. The generated text should be consistent with what has been generated so far: {request_context}."
 
         if previous_text_type == request_text_type:
             prompt = f"{context_string} The following text is a {request_text_type} from the document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: \'{request_text}\'."
@@ -49,13 +50,16 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         for new_text_chunk in generate_text(prompt=prompt, max_tokens=1000):
             new_text += new_text_chunk["choices"][0]["text"]
             new_text = clean_string(new_text)
+            progress = int(len(new_text.split())/750 * 100)*3
+            print(print(progress))
             response = {
                 'form_id': text_data_json['form_id'],
                 'new_text': new_text,
                 'disable': True, 
+                'progress': progress,
             }
             await self.send(text_data=json.dumps(response))
-            await asyncio.sleep(0.1) 
+            await asyncio.sleep(0.9) 
 
         # Save the updated text to the database after receiving all text chunks
         replacements[index][1] = new_text
@@ -66,6 +70,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
             'form_id': text_data_json['form_id'],
             'new_text': new_text,
             'disable': False, 
+            'progress': 100,
         }
         await self.send(text_data=json.dumps(response))
         

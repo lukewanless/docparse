@@ -6,6 +6,10 @@
         <div class="card">
             <h1 class="card-header text-center display-5">Parsed Document</h1>
             <div class="card-body">
+                <div class="mb-3">
+                    <label for="topicInput" class="form-label">Topic for generation</label>
+                    <input type="text" class="form-control" id="topicInput" placeholder="Enter a topic">
+                </div>
                 <div class="accordion" id="accordionExample">
                     {% for list in text %}
                     <div class="accordion-item">
@@ -32,6 +36,9 @@
                                         REGENERATE
                                     </button>
                                 </form>
+                                <div class="progress mt-2" id="progress-bar-{{ forloop.counter0 }}" style="display: none;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -64,10 +71,24 @@ socket.onmessage = function (event) {
   const formId = data.form_id;
   const newText = data.new_text;
   const disable = data.disable;
+  const progress = data.progress;
   const textarea = document.querySelector(`textarea[data-form-id="${formId}"]`);
   textarea.value = newText;
   textarea.scrollTop = textarea.scrollHeight;
   toggleDisabledState(formId, disable);
+  
+  console.log(progress);
+
+  // Update the progress bar with the received progress value
+  const progressBar = document.querySelector(`#progress-bar-${formId} .progress-bar`);
+  progressBar.style.width = progress + '%';
+  progressBar.setAttribute('aria-valuenow', progress);
+
+  if (progress === 100) {
+    document.getElementById(`progress-bar-${formId}`).style.display = 'none';
+  } else {
+    document.getElementById(`progress-bar-${formId}`).style.display = 'block';
+  }
 };
 
 socket.onclose = function (event) {
@@ -82,6 +103,7 @@ $(document).ready(function () {
     const selectedOption = $(`select[name="element-${formId}"]`).val();
     const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
     const context = collectContext(formId);
+    const topicValue = document.getElementById('topicInput').value;
     console.log(context);
 
     const data = {
@@ -90,6 +112,7 @@ $(document).ready(function () {
       selected_option: selectedOption,
       csrfmiddlewaretoken: csrfToken,
       context: context, 
+      topic: topicValue,
     };
 
     socket.send(JSON.stringify(data));
