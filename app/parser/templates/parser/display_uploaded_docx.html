@@ -99,6 +99,7 @@ socket.onclose = function (event) {
 };
 
 $(document).ready(function () {
+  disableForImage();
   $('button[name="regenerate_btn"]').on('click', function (event) {
     event.preventDefault();
     const formId = $(this).val();
@@ -187,6 +188,24 @@ function toggleDisabledState(formId, disabled) {
 
   textarea.disabled = disabled;
   regenerateBtn.disabled = disabled;
+}
+
+function disableForImage() {
+  const selects = document.querySelectorAll("select[name^='element-']");
+
+  selects.forEach((select) => {
+    const textarea = select.parentElement.querySelector("textarea[name='prompt']");
+    const regenerateBtn = select.parentElement.querySelector("button[name='regenerate_btn']");
+    
+    if (select.value === "Image") {
+      textarea.disabled = true;
+      select.disabled = true; 
+      regenerateBtn.disabled = true;
+    } else {
+      textarea.disabled = false;
+      regenerateBtn.disabled = false;
+    }
+  });
 }
 </script>
 {% endblock %}
