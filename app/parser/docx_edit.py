@@ -14,6 +14,8 @@ class DocElements(Enum):
     PARAGRAPH = "Paragraph"
     HEADING = "Heading"
     UNKNOWN = "Unknown"
+    IMAGE = "Image"
+    HYPERLINK= "Hyperlink"
 
 # Function to get a completion from davinci 
 def generate_text(prompt: str, max_tokens: int):
@@ -36,9 +38,14 @@ def classify_text(input_string):
     phone_number_regex = r'(?:(?:Tel|Fax)\s*)?(\+\d{1,3}\s?)?(\(?\d{1,4}\)?\s?)*\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,9}' 
     full_name_regex = r'\b[A-Z][a-z]+(\s[A-Z][a-z]+)+\b'
     date_time_regex = r'(?:(?:(?:(?P<month>\d{1,2})[-/.](?P<day>\d{1,2})|(?P<day_text>\d{1,2})(?:th|st|nd|rd)?\s*(?P<month_text>Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?))(?:[-/.]?(?P<year>\d{2,4}))?)|(?:\b(?P<weekday>Mon(?:day)?|Tue(?:sday)?|Wed(?:nesday)?|Thu(?:rsday)?|Fri(?:day)?|Sat(?:urday)?|Sun(?:day)?)\b))|(?:\b(?P<time>(?P<hour>\d{1,2})(?::|\.)(?P<minute>\d{2})(?::|\.)(?P<second>\d{2})\s?(?P<am_pm>[AP]M)?\b))'
-
+    image_regex = '----media\/([a-zA-Z0-9_-]+)\.(jpg|jpeg|png|gif)----'
+    hyperlink_regex = '<a href="([^"]+)">([^<]+)<\/a>'
     # Check for matches
-    if re.match(email_regex, input_string):
+    if re.match(image_regex, input_string):
+        return DocElements.IMAGE 
+    elif re.match(hyperlink_regex, input_string):
+        return DocElements.HYPERLINK
+    elif re.match(email_regex, input_string):
         return DocElements.EMAIL 
     elif re.match(date_time_regex, input_string):
         return DocElements.DATETIME
