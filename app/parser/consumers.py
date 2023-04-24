@@ -45,7 +45,7 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         new_text = ""
 
         # calculate max tokens using the previous text 
-        max_tokens = max(20, int(4*len(request_text.split())))
+        max_tokens = max(100, int(4*len(request_text.split())))
         for new_text_chunk in generate_text(prompt=prompt, max_tokens=max_tokens):
             new_text += new_text_chunk["choices"][0]["text"]
             new_text = clean_string(new_text)
