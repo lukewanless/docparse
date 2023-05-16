@@ -35,12 +35,12 @@ class RegenerateConsumer(AsyncWebsocketConsumer):
         # Generate text using the classification
         previous_text_type = classifications[index][0]
 
-        context_string = f"You are an LLM that replaces text from a real document with fake text that looks similar and realistic in order to obscure sensitive information. You generate document section by section. Here is a list of tuples containing the type of text in each section followed by the text as you go down the document. The document topic is {request_topic}. The generated text should be consistent with what has been generated so far: {request_context}."
+        context_string = f"Generate the next {request_text_type} for this document: {request_context}. It is on the topic of {request_topic}. Return only the new {request_text_type}."
 
         if previous_text_type == request_text_type:
-            prompt = f"{context_string} The following text is a {request_text_type} from the document. Please return a string containing a fake replacement value. It should be of similar length and style to the following text: \'{request_text}\'."
+            prompt = f"{context_string} It should be of similar length and style to the following text: \'{request_text}\'. Return only the new {request_text_type}."
         else:
-            prompt = f"{context_string} Generate a {request_text_type}. Return only the {request_text_type} as a string."
+            prompt = context_string 
 
         new_text = ""
 
