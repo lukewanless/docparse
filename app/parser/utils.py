@@ -1,6 +1,7 @@
 from parser import docx_edit 
 from django.db import transaction
 from .models import Document
+import re
 
 def handle_uploaded_file(f):  
     with open('parser/static/upload/'+f.name, 'wb+') as destination:  
@@ -15,7 +16,10 @@ def extract_text(f_name):
     replacement_list = []
     for txt in text:
         cleaned_txt = clean_string(txt)
-        classified_text.append(list([docx_edit.classify_text(cleaned_txt).value,cleaned_txt]))
+        classification = docx_edit.classify_text(cleaned_txt)
+        if classification == docx_edit.DocElements.HYPERLINK:
+           cleaned_txt = extract_hyperlink_text(cleaned_txt) 
+        classified_text.append(list([classification.value,cleaned_txt]))
         replacement_list.append(tuple([cleaned_txt, cleaned_txt]))
     save_document(replacement_list=replacement_list, element_classification=classified_text, f_name=f_name)
 
@@ -57,3 +61,8 @@ def clean_string(s):
         s = s[:-1]
 
     return s
+
+def extract_hyperlink_text(html_string):
+    match = re.search('<a href=[^>]*>([^<]*)</a>', html_string)
+    if match:
+        return match.group(1)

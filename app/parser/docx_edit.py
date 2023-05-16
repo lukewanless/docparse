@@ -4,6 +4,13 @@ import random
 from docx2python import docx2python, utilities
 import re
 from enum import Enum 
+from docx import Document
+from docx.text.run import Run
+from lxml import etree
+import shutil
+import xml.etree.ElementTree as ET
+import tempfile
+import zipfile
 
 class DocElements(Enum):
     EMAIL = "Email Address"
@@ -102,3 +109,44 @@ def replace_text(path_in, path_out, replacements=None):
     reader.save(path_out)
     reader.close()
 
+
+# unused but interesting so I decided to keep it.
+def replace_hyperlink_text_in_docx(docx_path, old_text, new_text):
+    # Create temporary directory
+    temp_dir = tempfile.mkdtemp()
+
+    # Extract docx file into temporary directory
+    with zipfile.ZipFile(docx_path, 'r') as docx:
+        docx.extractall(temp_dir)
+
+    # Parse document.xml
+    tree = ET.parse(os.path.join(temp_dir, 'word', 'document.xml'))
+    root = tree.getroot()
+
+    # Define XML namespaces
+    namespaces = {
+        'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    }
+
+    # Find all hyperlink elements
+    for hyperlink in root.findall('.//w:hyperlink', namespaces):
+        # Find all text elements within this hyperlink
+        for text_elem in hyperlink.findall('.//w:t', namespaces):
+            # If the text matches the old text, replace it with the new text
+            if text_elem.text == old_text:
+                text_elem.text = new_text
+
+    # Write back modified XML to document.xml
+    tree.write(os.path.join(temp_dir, 'word', 'document.xml'))
+
+    # Create a new docx file with modified content
+    #new_docx_path = docx_path.replace('.docx', '_modified.docx')
+    with zipfile.ZipFile(docx_path, 'w') as docx:
+        for folder, _, files in os.walk(temp_dir):
+            for file_name in files:
+                absolute_path = os.path.join(folder, file_name)
+                relative_path = os.path.relpath(absolute_path, temp_dir)
+                docx.write(absolute_path, relative_path)
+
+    # Clean up temporary directory
+    shutil.rmtree(temp_dir)

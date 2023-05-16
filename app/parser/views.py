@@ -98,7 +98,6 @@ def save(request):
         replacements = doc.get_replacement_list()
         docx_edit.replace_text(path_in='parser/static/upload/'+doc.f_name, path_out='parser/static/upload/replaced.docx', replacements=replacements)
 
-
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error'})
