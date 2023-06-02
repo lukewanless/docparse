@@ -1,0 +1,6 @@
+channels==4.0.0
+Django==4.1.7
+docx2python==2.6.3
+lxml==4.9.2
+openai==0.27.0
+python_docx==0.8.11
