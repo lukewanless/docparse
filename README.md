@@ -27,13 +27,16 @@ Here are some things you'll need to have before you start:
 ### Installation
 
 1. Clone the repo
+2. Install the following dependencies (figure this out)!!!!!
 
 ### Usage 
 
 1. To set the OpenAI api key as an environmental variable add the following to your .bashrc (Linux) or .zshrc (MacOS).
 
-'''export OPENAI_KEY="YOUR_KEY" '''
+``` export OPENAI_KEY="YOUR_KEY" ```
 
-1. To run the project on localhost first activate your python environment with installed dependencies and navigate to the app subdirectory and run the following:
+2. To run the project on localhost first activate your python environment with installed dependencies and navigate to the app subdirectory and run the following:
 
 ![Demo](https://user-images.githubusercontent.com/49578317/242752124-d7e88987-2e29-401d-b5c1-52f22b76d3ae.gif)
+
+3. Navigate to the localhost port running the application. And upload a file with .docx extension. 
