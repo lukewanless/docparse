@@ -1,5 +1,5 @@
 # Docparse
- Welcome to Docparse, this is a project designed for parsing custom templates for organisations and generating text without breaking .docx formatting. 
+ Welcome to Docparse, this is a project designed for efficiently parsing custom docx templates for organisations and using LLM's to generate realistic replacement text without breaking formatting. 
 
 ## Table of Contents
 - [Getting Started](#getting-started)
